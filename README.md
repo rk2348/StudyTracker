@@ -1,2 +1,2 @@
 # StudyTracker
-勉強用
+資格勉強記録用
