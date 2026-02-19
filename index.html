@@ -4,13 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>学習時間トラッカー (Cloud)</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     
     <script>
@@ -37,12 +33,14 @@
         body {
             background-color: #f8fafc;
         }
+        /* スクロールバーのカスタマイズ */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
         .loading-overlay {
-            position: fixed; inset: 0; background: rgba(255,255,255,0.8);
+            position: fixed; inset: 0; background: rgba(255,255,255,0.9);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             z-index: 100; backdrop-blur: 4px;
         }
@@ -50,13 +48,11 @@
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- ローディング表示 -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="animate-spin rounded-full h-12 w-12 border-4 border-brand-500 border-t-transparent mb-4"></div>
-        <p class="font-medium text-slate-600">データを読み込み中...</p>
+        <p class="font-medium text-slate-600">クラウドに接続中...</p>
     </div>
 
-    <!-- ナビゲーションバー -->
     <nav class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
@@ -81,23 +77,19 @@
         </div>
     </nav>
 
-    <!-- メインコンテンツ -->
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         
-        <!-- === ダッシュボードビュー === -->
         <div id="dashboardView">
             <div class="mb-8">
                 <h1 class="text-2xl font-bold text-slate-900">ダッシュボード</h1>
-                <p class="text-slate-500 mt-1">日々の学習を記録し、振り返りましょう。</p>
+                <p class="text-slate-500 mt-1">クラウドに保存されるため、データは永続的に保持されます。</p>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- 左カラム：入力フォーム -->
                 <div class="lg:col-span-1">
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sticky top-24">
                         <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
-                            <i class="ph ph-plus-circle text-brand-500 text-xl"></i>
-                            学習を記録する
+                            <i class="ph ph-plus-circle text-brand-500 text-xl"></i> 学習を記録する
                         </h2>
 
                         <div class="flex p-1 mb-4 bg-slate-100 rounded-lg">
@@ -150,7 +142,7 @@
                             
                             <div>
                                 <label for="memo" class="block text-sm font-medium text-slate-700 mb-1">メモ（任意）</label>
-                                <textarea id="memo" rows="2" placeholder="何を学んだか、気づきなど" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-shadow resize-none"></textarea>
+                                <textarea id="memo" rows="2" placeholder="内容や気づき" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-shadow resize-none"></textarea>
                             </div>
                             
                             <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors flex justify-center items-center gap-2">
@@ -160,14 +152,11 @@
                     </div>
                 </div>
 
-                <!-- 右カラム：データ表示 -->
                 <div class="lg:col-span-2 space-y-8">
-                    <!-- 試験日程 -->
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
                         <div class="flex justify-between items-center mb-4">
                             <h2 class="text-lg font-bold flex items-center gap-2">
-                                <i class="ph ph-calendar-star text-brand-500 text-xl"></i>
-                                試験日程
+                                <i class="ph ph-calendar-star text-brand-500 text-xl"></i> 試験日程
                             </h2>
                             <button onclick="openExamModal()" class="text-sm bg-brand-50 hover:bg-brand-100 text-brand-600 px-3 py-1.5 rounded-md font-medium transition-colors flex items-center gap-1">
                                 <i class="ph ph-gear"></i> 設定
@@ -176,7 +165,6 @@
                         <div id="examListDisplay" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
                     </div>
 
-                    <!-- サマリー -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex items-center gap-4">
                             <div class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
@@ -198,12 +186,10 @@
                         </div>
                     </div>
 
-                    <!-- 目標達成度 -->
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
                         <div class="flex justify-between items-center mb-6">
                             <h2 class="text-lg font-bold flex items-center gap-2">
-                                <i class="ph ph-target text-brand-500 text-xl"></i>
-                                目標達成度
+                                <i class="ph ph-target text-brand-500 text-xl"></i> 目標達成度
                             </h2>
                             <button onclick="openGoalModal()" class="text-sm bg-brand-50 hover:bg-brand-100 text-brand-600 px-3 py-1.5 rounded-md font-medium transition-colors flex items-center gap-1">
                                 <i class="ph ph-pencil-simple"></i> 設定
@@ -217,18 +203,15 @@
                         </div>
                     </div>
 
-                    <!-- 割合グラフ -->
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
                         <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
-                            <i class="ph ph-chart-pie-slice text-brand-500 text-xl"></i>
-                            科目別の学習割合
+                            <i class="ph ph-chart-pie-slice text-brand-500 text-xl"></i> 科目別の学習割合
                         </h2>
                         <div class="h-64 relative w-full flex justify-center">
                             <canvas id="subjectChart"></canvas>
                         </div>
                     </div>
 
-                    <!-- 最近の履歴 -->
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                         <div class="p-6 border-b border-slate-200 bg-slate-50">
                             <h2 class="text-lg font-bold flex items-center gap-2">
@@ -258,11 +241,10 @@
             </div>
         </div>
 
-        <!-- === 模試の成績ビュー === -->
         <div id="mockExamView" class="hidden">
             <div class="mb-8">
                 <h1 class="text-2xl font-bold text-slate-900">模擬試験の成績</h1>
-                <p class="text-slate-500 mt-1">模試の結果を記録して、得点率の推移を確認しましょう。</p>
+                <p class="text-slate-500 mt-1">得点率の推移を確認して、自分の成長を可視化しましょう。</p>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-1">
@@ -273,25 +255,25 @@
                         <form id="mockExamForm" class="space-y-4">
                             <div>
                                 <label for="mockDate" class="block text-sm font-medium text-slate-700 mb-1">実施日</label>
-                                <input type="date" id="mockDate" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none">
+                                <input type="date" id="mockDate" required class="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none">
                             </div>
                             <div>
                                 <label for="mockName" class="block text-sm font-medium text-slate-700 mb-1">模試名</label>
-                                <input type="text" id="mockName" required placeholder="例: 第1回 全国公開模試" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none">
+                                <input type="text" id="mockName" required placeholder="例: 第1回 全国公開模試" class="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none">
                             </div>
                             <div class="flex gap-4">
                                 <div class="w-1/2">
                                     <label for="mockScore" class="block text-sm font-medium text-slate-700 mb-1">得点</label>
-                                    <input type="number" id="mockScore" min="0" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none">
+                                    <input type="number" id="mockScore" min="0" required class="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none">
                                 </div>
                                 <div class="w-1/2">
                                     <label for="mockMaxScore" class="block text-sm font-medium text-slate-700 mb-1">満点</label>
-                                    <input type="number" id="mockMaxScore" min="1" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none">
+                                    <input type="number" id="mockMaxScore" min="1" required class="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none">
                                 </div>
                             </div>
                             <div>
-                                <label for="mockMemo" class="block text-sm font-medium text-slate-700 mb-1">メモ</label>
-                                <textarea id="mockMemo" rows="3" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none resize-none"></textarea>
+                                <label for="mockMemo" class="block text-sm font-medium text-slate-700 mb-1">振り返り</label>
+                                <textarea id="mockMemo" rows="3" class="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none resize-none"></textarea>
                             </div>
                             <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2.5 px-4 rounded-lg flex justify-center items-center gap-2">
                                 <i class="ph ph-floppy-disk text-lg"></i> 成績を保存
@@ -311,7 +293,7 @@
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                         <div class="p-6 border-b border-slate-200 bg-slate-50">
                             <h2 class="text-lg font-bold flex items-center gap-2">
-                                <i class="ph ph-list-numbers text-brand-500 text-xl"></i> 模試の記録
+                                <i class="ph ph-list-numbers text-brand-500 text-xl"></i> 模試の履歴
                             </h2>
                         </div>
                         <div class="overflow-x-auto">
@@ -329,25 +311,23 @@
                             </table>
                             <div id="mockEmptyState" class="hidden p-8 text-center text-slate-500">
                                 <i class="ph ph-exam text-4xl mb-2 text-slate-300"></i>
-                                <p>まだ模試の記録がありません。</p>
+                                <p>まだ記録がありません。</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
     </main>
 
-    <!-- 各種モーダル -->
     <div id="goalModal" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 backdrop-blur-sm">
         <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl mx-4">
-            <h2 class="text-xl font-bold mb-4">目標時間の設定</h2>
+            <h2 class="text-xl font-bold mb-4">目標時間の設定（時間）</h2>
             <form id="goalForm" class="space-y-4">
-                <div><label class="block text-sm font-medium mb-1">日の目標（時）</label><input type="number" id="goalDaily" min="0" step="0.5" required class="w-full px-4 py-2 border border-slate-300 rounded-lg"></div>
-                <div><label class="block text-sm font-medium mb-1">週の目標（時）</label><input type="number" id="goalWeekly" min="0" step="1" required class="w-full px-4 py-2 border border-slate-300 rounded-lg"></div>
-                <div><label class="block text-sm font-medium mb-1">月の目標（時）</label><input type="number" id="goalMonthly" min="0" step="1" required class="w-full px-4 py-2 border border-slate-300 rounded-lg"></div>
-                <div><label class="block text-sm font-medium mb-1">年の目標（時）</label><input type="number" id="goalYearly" min="0" step="1" required class="w-full px-4 py-2 border border-slate-300 rounded-lg"></div>
+                <div><label class="block text-sm font-medium mb-1">日の目標</label><input type="number" id="goalDaily" min="0" step="0.5" required class="w-full px-4 py-2 border rounded-lg"></div>
+                <div><label class="block text-sm font-medium mb-1">週の目標</label><input type="number" id="goalWeekly" min="0" step="1" required class="w-full px-4 py-2 border rounded-lg"></div>
+                <div><label class="block text-sm font-medium mb-1">月の目標</label><input type="number" id="goalMonthly" min="0" step="1" required class="w-full px-4 py-2 border rounded-lg"></div>
+                <div><label class="block text-sm font-medium mb-1">年の目標</label><input type="number" id="goalYearly" min="0" step="1" required class="w-full px-4 py-2 border rounded-lg"></div>
                 <div class="flex justify-end gap-3 mt-6">
                     <button type="button" onclick="closeGoalModal()" class="px-4 py-2 text-slate-600 font-medium">キャンセル</button>
                     <button type="submit" class="bg-brand-600 text-white px-6 py-2 rounded-lg font-medium">保存</button>
@@ -368,20 +348,28 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, addDoc, getDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // === Firebase Configuration ===
-        const firebaseConfig = JSON.parse(__firebase_config);
+        // === ユーザー提供のFirebase Configuration ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyAByhWq2P8kvgG0nX6vZPfHphyF1M81Ze4",
+            authDomain: "studytracker-810d7.firebaseapp.com",
+            projectId: "studytracker-810d7",
+            storageBucket: "studytracker-810d7.firebasestorage.app",
+            messagingSenderId: "247864942142",
+            appId: "1:247864942142:web:8f1db29dfd3c9616bf3b6f",
+            measurementId: "G-S5M5MH306R"
+        };
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'study-tracker-app';
+        const artifactId = 'study-tracker-app'; // アプリ識別子
 
-        // === State ===
+        // === 状態管理 ===
         let records = [];
         let goals = { daily: 4, weekly: 25, monthly: 100, yearly: 1000 };
         let exams = [];
@@ -394,156 +382,109 @@
         let timerSeconds = 0;
         let isTimerRunning = false;
 
-        // === Auth Initialization ===
-        const initAuth = async () => {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) {
-                console.error("Auth failed:", error);
-            }
-        };
-
-        initAuth();
-
+        // === 認証・初期化 ===
         onAuthStateChanged(auth, (u) => {
-            user = u;
-            if (user) {
-                document.getElementById('userIdDisplay').textContent = user.uid;
-                setupDataListeners();
+            if (u) {
+                user = u;
+                document.getElementById('userIdDisplay').textContent = user.uid.substring(0, 8) + '...';
+                setupRealtimeListeners();
                 document.getElementById('loadingOverlay').classList.add('hidden');
+            } else {
+                signInAnonymously(auth).catch(err => console.error("Auth Error:", err));
             }
         });
 
-        // === Firestore Listeners ===
-        function setupDataListeners() {
+        // === Firestore リアルタイム同期 ===
+        function setupRealtimeListeners() {
             if (!user) return;
+            const userRef = doc(db, 'artifacts', artifactId, 'users', user.uid);
 
-            // Study Records
-            onSnapshot(collection(db, 'artifacts', appId, 'users', user.uid, 'study_records'), (snapshot) => {
-                records = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            // 学習記録
+            onSnapshot(collection(userRef, 'study_records'), (snap) => {
+                records = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 updateUI();
-            }, (err) => console.error(err));
+            });
 
-            // Goals
-            onSnapshot(doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'goals'), (docSnap) => {
-                if (docSnap.exists()) {
-                    goals = docSnap.data();
+            // 目標設定
+            onSnapshot(doc(userRef, 'settings', 'goals'), (d) => {
+                if (d.exists()) {
+                    goals = d.data();
                     updateUI();
                 }
-            }, (err) => console.error(err));
+            });
 
-            // Exams
-            onSnapshot(collection(db, 'artifacts', appId, 'users', user.uid, 'exams'), (snapshot) => {
-                exams = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            // 試験日程
+            onSnapshot(collection(userRef, 'exams'), (snap) => {
+                exams = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 updateUI();
-            }, (err) => console.error(err));
+            });
 
-            // Mock Exams
-            onSnapshot(collection(db, 'artifacts', appId, 'users', user.uid, 'mock_exams'), (snapshot) => {
-                mockRecords = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            // 模試結果
+            onSnapshot(collection(userRef, 'mock_exams'), (snap) => {
+                mockRecords = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 updateMockUI();
-            }, (err) => console.error(err));
+            });
         }
 
-        // === Global Actions (Export to window for HTML access) ===
+        // === グローバル関数定義 (HTMLから呼び出し用) ===
         window.switchView = (view) => {
-            const dashboard = document.getElementById('dashboardView');
-            const mock = document.getElementById('mockExamView');
-            const tabD = document.getElementById('tab-dashboard');
-            const tabM = document.getElementById('tab-mock-exams');
-
-            if (view === 'dashboard') {
-                dashboard.classList.remove('hidden');
-                mock.classList.add('hidden');
-                tabD.className = 'px-3 py-2 text-sm font-medium rounded-md bg-brand-50 text-brand-700 transition-colors';
-                tabM.className = 'px-3 py-2 text-sm font-medium rounded-md text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors';
-            } else {
-                dashboard.classList.add('hidden');
-                mock.classList.remove('hidden');
-                tabM.className = 'px-3 py-2 text-sm font-medium rounded-md bg-brand-50 text-brand-700 transition-colors';
-                tabD.className = 'px-3 py-2 text-sm font-medium rounded-md text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors';
-            }
+            document.getElementById('dashboardView').classList.toggle('hidden', view !== 'dashboard');
+            document.getElementById('mockExamView').classList.toggle('hidden', view !== 'mock-exams');
+            document.getElementById('tab-dashboard').className = view === 'dashboard' ? 'px-3 py-2 text-sm font-medium rounded-md bg-brand-50 text-brand-700 transition-colors' : 'px-3 py-2 text-sm font-medium rounded-md text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors';
+            document.getElementById('tab-mock-exams').className = view === 'mock-exams' ? 'px-3 py-2 text-sm font-medium rounded-md bg-brand-50 text-brand-700 transition-colors' : 'px-3 py-2 text-sm font-medium rounded-md text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors';
         };
 
         window.setInputMode = (mode) => {
             inputMode = mode;
-            const btnM = document.getElementById('modeBtnManual');
-            const btnT = document.getElementById('modeBtnTimer');
-            const manual = document.getElementById('manualTimeInput');
-            const timer = document.getElementById('timerTimeInput');
-            
-            if (mode === 'manual') {
-                btnM.className = 'flex-1 py-1.5 text-sm font-medium rounded-md bg-white shadow-sm text-brand-700 transition-all';
-                btnT.className = 'flex-1 py-1.5 text-sm font-medium rounded-md text-slate-500 hover:text-slate-700 transition-all';
-                manual.classList.remove('hidden');
-                timer.classList.add('hidden');
-            } else {
-                btnT.className = 'flex-1 py-1.5 text-sm font-medium rounded-md bg-white shadow-sm text-brand-700 transition-all';
-                btnM.className = 'flex-1 py-1.5 text-sm font-medium rounded-md text-slate-500 hover:text-slate-700 transition-all';
-                timer.classList.remove('hidden');
-                manual.classList.add('hidden');
-            }
+            document.getElementById('manualTimeInput').classList.toggle('hidden', mode !== 'manual');
+            document.getElementById('timerTimeInput').classList.toggle('hidden', mode !== 'timer');
+            document.getElementById('modeBtnManual').className = mode === 'manual' ? 'flex-1 py-1.5 text-sm font-medium rounded-md bg-white shadow-sm text-brand-700 transition-all' : 'flex-1 py-1.5 text-sm font-medium rounded-md text-slate-500 hover:text-slate-700 transition-all';
+            document.getElementById('modeBtnTimer').className = mode === 'timer' ? 'flex-1 py-1.5 text-sm font-medium rounded-md bg-white shadow-sm text-brand-700 transition-all' : 'flex-1 py-1.5 text-sm font-medium rounded-md text-slate-500 hover:text-slate-700 transition-all';
         };
 
         window.toggleTimer = () => {
-            const startBtn = document.getElementById('timerStartBtn');
-            const pauseBtn = document.getElementById('timerPauseBtn');
+            const sBtn = document.getElementById('timerStartBtn');
+            const pBtn = document.getElementById('timerPauseBtn');
             if (isTimerRunning) {
                 clearInterval(timerInterval);
                 isTimerRunning = false;
-                startBtn.classList.remove('hidden');
-                pauseBtn.classList.add('hidden');
-                startBtn.innerHTML = '<i class="ph-fill ph-play"></i> 再開';
+                sBtn.classList.remove('hidden'); pBtn.classList.add('hidden');
+                sBtn.innerHTML = '<i class="ph-fill ph-play"></i> 再開';
             } else {
                 isTimerRunning = true;
-                startBtn.classList.add('hidden');
-                pauseBtn.classList.remove('hidden');
+                sBtn.classList.add('hidden'); pBtn.classList.remove('hidden');
                 timerInterval = setInterval(() => {
                     timerSeconds++;
-                    const h = Math.floor(timerSeconds / 3600);
-                    const m = Math.floor((timerSeconds % 3600) / 60);
-                    const s = timerSeconds % 60;
-                    document.getElementById('timerDisplay').textContent = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                    const h = Math.floor(timerSeconds/3600), m = Math.floor((timerSeconds%3600)/60), s = timerSeconds%60;
+                    document.getElementById('timerDisplay').textContent = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
                 }, 1000);
             }
         };
 
         window.resetTimer = () => {
-            clearInterval(timerInterval);
-            isTimerRunning = false;
-            timerSeconds = 0;
+            clearInterval(timerInterval); isTimerRunning = false; timerSeconds = 0;
             document.getElementById('timerDisplay').textContent = "00:00:00";
             document.getElementById('timerStartBtn').classList.remove('hidden');
             document.getElementById('timerPauseBtn').classList.add('hidden');
             document.getElementById('timerStartBtn').innerHTML = '<i class="ph-fill ph-play"></i> スタート';
         };
 
-        // --- Data Operations ---
+        // --- データ操作 ---
         document.getElementById('recordForm').onsubmit = async (e) => {
-            e.preventDefault();
-            if (!user) return;
+            e.preventDefault(); if (!user) return;
             const duration = inputMode === 'manual' ? parseInt(document.getElementById('duration').value) : Math.max(1, Math.round(timerSeconds/60));
             if (isNaN(duration)) return;
-            await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'study_records'), {
+            await addDoc(collection(db, 'artifacts', artifactId, 'users', user.uid, 'study_records'), {
                 date: document.getElementById('date').value,
                 subject: document.getElementById('subject').value,
                 duration,
                 memo: document.getElementById('memo').value,
                 createdAt: Date.now()
             });
-            e.target.reset();
-            document.getElementById('date').value = new Date().toISOString().split('T')[0];
-            resetTimer();
+            e.target.reset(); document.getElementById('date').value = new Date().toISOString().split('T')[0]; resetTimer();
         };
 
-        window.deleteRecord = async (id) => {
-            if (!user) return;
-            await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'study_records', id));
-        };
+        window.deleteRecord = async (id) => { if (user) await deleteDoc(doc(db, 'artifacts', artifactId, 'users', user.uid, 'study_records', id)); };
 
         window.openGoalModal = () => {
             document.getElementById('goalDaily').value = goals.daily;
@@ -552,163 +493,104 @@
             document.getElementById('goalYearly').value = goals.yearly;
             document.getElementById('goalModal').classList.remove('hidden');
         };
-
         window.closeGoalModal = () => document.getElementById('goalModal').classList.add('hidden');
-
         document.getElementById('goalForm').onsubmit = async (e) => {
-            e.preventDefault();
-            if (!user) return;
-            const newGoals = {
+            e.preventDefault(); if (!user) return;
+            await setDoc(doc(db, 'artifacts', artifactId, 'users', user.uid, 'settings', 'goals'), {
                 daily: parseFloat(document.getElementById('goalDaily').value),
                 weekly: parseFloat(document.getElementById('goalWeekly').value),
                 monthly: parseFloat(document.getElementById('goalMonthly').value),
                 yearly: parseFloat(document.getElementById('goalYearly').value)
-            };
-            await setDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'goals'), newGoals);
+            });
             closeGoalModal();
         };
 
-        window.openExamModal = () => {
-            document.getElementById('examModal').classList.remove('hidden');
-            renderExamModalList();
-        };
-
+        window.openExamModal = () => { document.getElementById('examModal').classList.remove('hidden'); renderExamModalList(); };
         window.closeExamModal = () => document.getElementById('examModal').classList.add('hidden');
-
         document.getElementById('addExamForm').onsubmit = async (e) => {
-            e.preventDefault();
-            if (!user) return;
-            await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'exams'), {
+            e.preventDefault(); if (!user) return;
+            await addDoc(collection(db, 'artifacts', artifactId, 'users', user.uid, 'exams'), {
                 name: document.getElementById('newExamName').value,
                 date: document.getElementById('newExamDate').value
             });
             e.target.reset();
         };
-
-        window.deleteExam = async (id) => {
-            if (!user) return;
-            await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'exams', id));
-        };
+        window.deleteExam = async (id) => { if (user) await deleteDoc(doc(db, 'artifacts', artifactId, 'users', user.uid, 'exams', id)); };
 
         document.getElementById('mockExamForm').onsubmit = async (e) => {
-            e.preventDefault();
-            if (!user) return;
-            await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'mock_exams'), {
+            e.preventDefault(); if (!user) return;
+            await addDoc(collection(db, 'artifacts', artifactId, 'users', user.uid, 'mock_exams'), {
                 date: document.getElementById('mockDate').value,
                 name: document.getElementById('mockName').value,
                 score: parseInt(document.getElementById('mockScore').value),
                 maxScore: parseInt(document.getElementById('mockMaxScore').value),
                 memo: document.getElementById('mockMemo').value
             });
-            e.target.reset();
-            document.getElementById('mockDate').value = new Date().toISOString().split('T')[0];
+            e.target.reset(); document.getElementById('mockDate').value = new Date().toISOString().split('T')[0];
         };
+        window.deleteMockExam = async (id) => { if (user) await deleteDoc(doc(db, 'artifacts', artifactId, 'users', user.uid, 'mock_exams', id)); };
 
-        window.deleteMockExam = async (id) => {
-            if (!user) return;
-            await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'mock_exams', id));
-        };
-
-        // --- Render UI ---
+        // --- UIレンダリング ---
         function updateUI() {
             records.sort((a,b) => new Date(b.date) - new Date(a.date));
-            renderSummary();
-            renderGoals();
-            renderExams();
-            renderTable();
-            renderChart();
+            renderSummary(); renderGoals(); renderExams(); renderTable(); renderChart();
         }
 
         function renderSummary() {
-            const totalMin = records.reduce((s, r) => s + r.duration, 0);
-            document.getElementById('totalTimeDisplay').textContent = `${Math.floor(totalMin/60)}時間 ${totalMin%60}分`;
-            const curMonth = new Date().toISOString().slice(0,7);
-            const days = new Set(records.filter(r => r.date.startsWith(curMonth)).map(r => r.date));
+            const total = records.reduce((s, r) => s + r.duration, 0);
+            document.getElementById('totalTimeDisplay').textContent = `${Math.floor(total/60)}時間 ${total%60}分`;
+            const month = new Date().toISOString().slice(0,7);
+            const days = new Set(records.filter(r => r.date.startsWith(month)).map(r => r.date));
             document.getElementById('totalDaysDisplay').textContent = `${days.size}日`;
         }
 
         function renderGoals() {
-            const now = new Date();
-            const todayStr = now.toISOString().split('T')[0];
-            const curMonth = todayStr.substring(0,7);
-            const curYear = todayStr.substring(0,4);
-            const d = new Date(now);
-            const startOfWeek = new Date(d.setDate(d.getDate() - d.getDay() + (d.getDay() === 0 ? -6 : 1))).setHours(0,0,0,0);
-
-            let stats = { daily: 0, weekly: 0, monthly: 0, yearly: 0 };
+            const now = new Date(), today = now.toISOString().split('T')[0];
+            const mon = today.substring(0,7), yr = today.substring(0,4);
+            const d = new Date(now); const startW = new Date(d.setDate(d.getDate() - d.getDay() + (d.getDay() === 0 ? -6 : 1))).setHours(0,0,0,0);
+            let s = { d: 0, w: 0, m: 0, y: 0 };
             records.forEach(r => {
-                if (r.date === todayStr) stats.daily += r.duration;
-                if (new Date(r.date).setHours(0,0,0,0) >= startOfWeek) stats.weekly += r.duration;
-                if (r.date.startsWith(curMonth)) stats.monthly += r.duration;
-                if (r.date.startsWith(curYear)) stats.yearly += r.duration;
+                if (r.date === today) s.d += r.duration;
+                if (new Date(r.date).setHours(0,0,0,0) >= startW) s.w += r.duration;
+                if (r.date.startsWith(mon)) s.m += r.duration;
+                if (r.date.startsWith(yr)) s.y += r.duration;
             });
-
-            updateProgress('dailyProgress', stats.daily, goals.daily * 60, '日');
-            updateProgress('weeklyProgress', stats.weekly, goals.weekly * 60, '週');
-            updateProgress('monthlyProgress', stats.monthly, goals.monthly * 60, '月');
-            updateProgress('yearlyProgress', stats.yearly, goals.yearly * 60, '年');
-        }
-
-        function updateProgress(id, cur, tar, label) {
-            const perc = tar > 0 ? Math.min(100, Math.round((cur/tar)*100)) : 0;
-            document.getElementById(id).innerHTML = `
-                <div class="flex justify-between text-sm mb-1">
-                    <span class="text-slate-600 font-medium">${label}の目標</span>
-                    <span class="text-slate-900 font-bold">${(cur/60).toFixed(1)}h / ${tar/60}h (${perc}%)</span>
-                </div>
-                <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                    <div class="${perc>=100?'bg-green-500':'bg-brand-500'} h-2.5 rounded-full" style="width: ${perc}%"></div>
-                </div>
-            `;
+            const upd = (id, cur, tar, lbl) => {
+                const p = tar > 0 ? Math.min(100, Math.round((cur/(tar*60))*100)) : 0;
+                document.getElementById(id).innerHTML = `<div class="flex justify-between text-sm mb-1"><span class="text-slate-600 font-medium">${lbl}の目標</span><span class="text-slate-900 font-bold">${(cur/60).toFixed(1)}h / ${tar}h (${p}%)</span></div><div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden"><div class="${p>=100?'bg-green-500':'bg-brand-500'} h-2.5 rounded-full" style="width: ${p}%"></div></div>`;
+            };
+            upd('dailyProgress', s.d, goals.daily, '日'); upd('weeklyProgress', s.w, goals.weekly, '週'); upd('monthlyProgress', s.m, goals.monthly, '月'); upd('yearlyProgress', s.y, goals.yearly, '年');
         }
 
         function renderExams() {
-            const container = document.getElementById('examListDisplay');
-            container.innerHTML = '';
-            const todayDate = new Date(); todayDate.setHours(0,0,0,0);
+            const container = document.getElementById('examListDisplay'); container.innerHTML = '';
+            const today = new Date(); today.setHours(0,0,0,0);
             exams.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(e => {
-                const diff = Math.ceil((new Date(e.date) - todayDate) / 86400000);
+                const diff = Math.ceil((new Date(e.date) - today) / 86400000);
                 const color = diff <= 30 ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-brand-50 text-brand-800 border-brand-100';
-                container.innerHTML += `
-                    <div class="border rounded-xl p-4 ${color}">
-                        <div class="text-xs font-bold mb-1 opacity-70">${e.name}</div>
-                        <div class="flex items-end justify-between">
-                            <div>${diff>0?`あと<span class="text-2xl font-bold mx-1">${diff}</span>日`:diff===0?'本日試験！':'終了'}</div>
-                            <div class="text-xs opacity-60">${e.date}</div>
-                        </div>
-                    </div>
-                `;
+                container.innerHTML += `<div class="border rounded-xl p-4 ${color}"><div class="text-xs font-bold mb-1 opacity-70">${e.name}</div><div class="flex items-end justify-between"><div>${diff>0?`あと<span class="text-2xl font-bold mx-1">${diff}</span>日`:diff===0?'本日試験！':'終了'}</div><div class="text-xs opacity-60">${e.date}</div></div></div>`;
             });
         }
 
         function renderExamModalList() {
-            const list = document.getElementById('examModalList');
-            list.innerHTML = '';
+            const list = document.getElementById('examModalList'); list.innerHTML = '';
             exams.forEach(e => {
-                list.innerHTML += `
-                    <div class="flex justify-between bg-slate-50 p-3 rounded-lg border">
-                        <div><div class="font-bold text-sm">${e.name}</div><div class="text-xs text-slate-500">${e.date}</div></div>
-                        <button onclick="deleteExam('${e.id}')" class="text-slate-400 hover:text-red-500"><i class="ph ph-trash text-lg"></i></button>
-                    </div>
-                `;
+                list.innerHTML += `<div class="flex justify-between bg-slate-50 p-3 rounded-lg border"><div><div class="font-bold text-sm">${e.name}</div><div class="text-xs text-slate-500">${e.date}</div></div><button onclick="deleteExam('${e.id}')" class="text-slate-400 hover:text-red-500"><i class="ph ph-trash text-lg"></i></button></div>`;
             });
         }
 
         function renderTable() {
-            const tbody = document.getElementById('recordList');
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('recordList'); tbody.innerHTML = '';
             records.forEach(r => {
                 const colors = { '数的処理': 'bg-blue-100 text-blue-700', '憲法': 'bg-red-100 text-red-700', '民法': 'bg-orange-100 text-orange-700' };
                 const badge = colors[r.subject] || 'bg-slate-100 text-slate-700';
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="py-3 px-6 text-sm text-slate-600">${r.date}</td>
-                        <td class="py-3 px-6"><span class="px-2 py-1 rounded-full text-xs font-medium ${badge}">${r.subject}</span></td>
-                        <td class="py-3 px-6 text-sm font-medium text-slate-700">${Math.floor(r.duration/60)}h ${r.duration%60}m</td>
-                        <td class="py-3 px-6 text-sm text-slate-600 truncate max-w-xs">${r.memo||'-'}</td>
-                        <td class="py-3 px-6 text-center"><button onclick="deleteRecord('${r.id}')" class="text-slate-400 hover:text-red-500"><i class="ph ph-trash text-lg"></i></button></td>
-                    </tr>
-                `;
+                tbody.innerHTML += `<tr class="hover:bg-slate-50">
+                    <td class="py-3 px-6 text-sm">${r.date}</td>
+                    <td class="py-3 px-6"><span class="px-2 py-1 rounded-full text-xs font-medium ${badge}">${r.subject}</span></td>
+                    <td class="py-3 px-6 text-sm font-medium">${Math.floor(r.duration/60)}h ${r.duration%60}m</td>
+                    <td class="py-3 px-6 text-sm text-slate-600 truncate max-w-xs">${r.memo||'-'}</td>
+                    <td class="py-3 px-6 text-center"><button onclick="deleteRecord('${r.id}')" class="text-slate-400 hover:text-red-500"><i class="ph ph-trash text-lg"></i></button></td>
+                </tr>`;
             });
             document.getElementById('emptyState').classList.toggle('hidden', records.length > 0);
         }
@@ -719,26 +601,22 @@
             if (myChart) myChart.destroy();
             myChart = new Chart(ctx, {
                 type: 'doughnut',
-                data: { labels: Object.keys(totals), datasets: [{ data: Object.values(totals), backgroundColor: ['#0ea5e9','#ef4444','#22c55e','#a855f7','#eab308'] }]},
+                data: { labels: Object.keys(totals), datasets: [{ data: Object.values(totals), backgroundColor: ['#0ea5e9','#ef4444','#22c55e','#a855f7','#eab308','#f97316'] }]},
                 options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'right' }}}
             });
         }
 
         function updateMockUI() {
             mockRecords.sort((a,b) => new Date(a.date) - new Date(b.date));
-            const tbody = document.getElementById('mockList');
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('mockList'); tbody.innerHTML = '';
             [...mockRecords].reverse().forEach(r => {
-                const perc = Math.round((r.score/r.maxScore)*100);
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50">
-                        <td class="py-3 px-6 text-sm">${r.date}</td>
-                        <td class="py-3 px-6 font-medium">${r.name}</td>
-                        <td class="py-3 px-6 text-right">${r.score} / ${r.maxScore}</td>
-                        <td class="py-3 px-6 text-right font-bold ${perc>=70?'text-green-600':'text-brand-600'}">${perc}%</td>
-                        <td class="py-3 px-6 text-center"><button onclick="deleteMockExam('${r.id}')" class="text-slate-400 hover:text-red-500"><i class="ph ph-trash text-lg"></i></button></td>
-                    </tr>
-                `;
+                const p = Math.round((r.score/r.maxScore)*100);
+                tbody.innerHTML += `<tr class="hover:bg-slate-50">
+                    <td class="py-3 px-6 text-sm">${r.date}</td><td class="py-3 px-6 font-medium">${r.name}</td>
+                    <td class="py-3 px-6 text-right">${r.score} / ${r.maxScore}</td>
+                    <td class="py-3 px-6 text-right font-bold ${p>=70?'text-green-600':'text-brand-600'}">${p}%</td>
+                    <td class="py-3 px-6 text-center"><button onclick="deleteMockExam('${r.id}')" class="text-slate-400 hover:text-red-500"><i class="ph ph-trash text-lg"></i></button></td>
+                </tr>`;
             });
             document.getElementById('mockEmptyState').classList.toggle('hidden', mockRecords.length > 0);
             renderMockChart();
@@ -754,10 +632,9 @@
             });
         }
 
-        // 初期日付設定
+        // 初期化処理
         document.getElementById('date').value = new Date().toISOString().split('T')[0];
         document.getElementById('mockDate').value = new Date().toISOString().split('T')[0];
-
     </script>
 </body>
 </html>
