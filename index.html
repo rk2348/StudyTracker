@@ -1,1 +1,752 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学習時間トラッカー</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans JP"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f8fafc;
+        }
+        /* スクロールバーのカスタマイズ */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
+    <!-- ナビゲーションバー -->
+    <nav class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-2">
+                    <i class="ph-fill ph-book-open-text text-brand-600 text-3xl"></i>
+                    <span class="font-bold text-xl tracking-tight">StudyTracker</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 font-bold">
+                        U
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- メインコンテンツ -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-slate-900">ダッシュボード</h1>
+            <p class="text-slate-500 mt-1">日々の学習を記録し、振り返りましょう。</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- 左カラム：入力フォーム -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sticky top-24">
+                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                        <i class="ph ph-plus-circle text-brand-500 text-xl"></i>
+                        学習を記録する
+                    </h2>
+                    
+                    <form id="recordForm" class="space-y-4">
+                        <div>
+                            <label for="date" class="block text-sm font-medium text-slate-700 mb-1">日付</label>
+                            <input type="date" id="date" required
+                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-shadow">
+                        </div>
+                        
+                        <div>
+                            <label for="subject" class="block text-sm font-medium text-slate-700 mb-1">科目・カテゴリ</label>
+                            <select id="subject" required
+                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-shadow bg-white">
+                                <option value="" disabled selected>選択してください</option>
+                                <option value="数的処理">数的処理</option>
+                                <option value="文章理解">文章理解</option>
+                                <option value="憲法">憲法</option>
+                                <option value="民法">民法</option>
+                                <option value="行政法">行政法</option>
+                                <option value="ミクロ経済学">ミクロ経済学</option>
+                                <option value="マクロ経済学">マクロ経済学</option>
+                                <option value="その他">その他</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="duration" class="block text-sm font-medium text-slate-700 mb-1">学習時間（分）</label>
+                            <input type="number" id="duration" min="1" required placeholder="例: 60"
+                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-shadow">
+                        </div>
+                        
+                        <div>
+                            <label for="memo" class="block text-sm font-medium text-slate-700 mb-1">メモ（任意）</label>
+                            <textarea id="memo" rows="2" placeholder="何を学んだか、気づきなど"
+                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-shadow resize-none"></textarea>
+                        </div>
+                        
+                        <button type="submit"
+                            class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors flex justify-center items-center gap-2 mt-2">
+                            <i class="ph ph-floppy-disk text-lg"></i>
+                            記録を保存
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 右カラム：データ表示 -->
+            <div class="lg:col-span-2 space-y-8">
+                
+                <!-- 試験日程カード -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold flex items-center gap-2">
+                            <i class="ph ph-calendar-star text-brand-500 text-xl"></i>
+                            試験日程
+                        </h2>
+                        <button onclick="openExamModal()" class="text-sm bg-brand-50 hover:bg-brand-100 text-brand-600 px-3 py-1.5 rounded-md font-medium transition-colors flex items-center gap-1">
+                            <i class="ph ph-gear"></i>
+                            設定
+                        </button>
+                    </div>
+                    <div id="examListDisplay" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- JavaScriptで動的に追加されます -->
+                    </div>
+                </div>
+
+                <!-- サマリーカード -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
+                            <i class="ph-fill ph-clock text-3xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-500 font-medium">総学習時間</p>
+                            <p class="text-2xl font-bold text-slate-900" id="totalTimeDisplay">0時間 0分</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center text-green-500">
+                            <i class="ph-fill ph-calendar-check text-3xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-500 font-medium">今月の学習日数</p>
+                            <p class="text-2xl font-bold text-slate-900" id="totalDaysDisplay">0日</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 目標達成度カード -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg font-bold flex items-center gap-2">
+                            <i class="ph ph-target text-brand-500 text-xl"></i>
+                            目標達成度
+                        </h2>
+                        <button onclick="openGoalModal()" class="text-sm bg-brand-50 hover:bg-brand-100 text-brand-600 px-3 py-1.5 rounded-md font-medium transition-colors flex items-center gap-1">
+                            <i class="ph ph-pencil-simple"></i>
+                            設定
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+                        <div id="dailyProgress"></div>
+                        <div id="weeklyProgress"></div>
+                        <div id="monthlyProgress"></div>
+                        <div id="yearlyProgress"></div>
+                    </div>
+                </div>
+
+                <!-- グラフエリア -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                        <i class="ph ph-chart-pie-slice text-brand-500 text-xl"></i>
+                        科目別の学習割合
+                    </h2>
+                    <div class="h-64 relative w-full flex justify-center">
+                        <canvas id="subjectChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 履歴リスト -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-6 border-b border-slate-200 bg-slate-50">
+                        <h2 class="text-lg font-bold flex items-center gap-2">
+                            <i class="ph ph-list-dashes text-brand-500 text-xl"></i>
+                            最近の記録
+                        </h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-white border-b border-slate-200 text-sm text-slate-500">
+                                    <th class="py-3 px-6 font-medium">日付</th>
+                                    <th class="py-3 px-6 font-medium">科目</th>
+                                    <th class="py-3 px-6 font-medium">時間</th>
+                                    <th class="py-3 px-6 font-medium">メモ</th>
+                                    <th class="py-3 px-6 font-medium text-center">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recordList" class="divide-y divide-slate-100">
+                                <!-- JavaScriptで動的に追加されます -->
+                            </tbody>
+                        </table>
+                        <!-- 空の状態 -->
+                        <div id="emptyState" class="hidden p-8 text-center text-slate-500">
+                            <i class="ph ph-folder-open text-4xl mb-2 text-slate-300"></i>
+                            <p>まだ記録がありません。</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- 目標設定モーダル -->
+    <div id="goalModal" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl mx-4">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <i class="ph ph-target text-brand-500"></i>
+                目標時間の設定
+            </h2>
+            <p class="text-sm text-slate-500 mb-6">各期間の目標学習時間を「時間」単位で入力してください。</p>
+            <form id="goalForm" class="space-y-4">
+                <div>
+                    <label for="goalDaily" class="block text-sm font-medium text-slate-700 mb-1">日の目標（時間）</label>
+                    <input type="number" id="goalDaily" min="0" step="0.5" required
+                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none">
+                </div>
+                <div>
+                    <label for="goalWeekly" class="block text-sm font-medium text-slate-700 mb-1">週の目標（時間）</label>
+                    <input type="number" id="goalWeekly" min="0" step="1" required
+                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none">
+                </div>
+                <div>
+                    <label for="goalMonthly" class="block text-sm font-medium text-slate-700 mb-1">月の目標（時間）</label>
+                    <input type="number" id="goalMonthly" min="0" step="1" required
+                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none">
+                </div>
+                <div>
+                    <label for="goalYearly" class="block text-sm font-medium text-slate-700 mb-1">年の目標（時間）</label>
+                    <input type="number" id="goalYearly" min="0" step="1" required
+                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none">
+                </div>
+                
+                <div class="flex justify-end gap-3 mt-8">
+                    <button type="button" onclick="closeGoalModal()"
+                        class="px-4 py-2 text-slate-600 hover:bg-slate-100 font-medium rounded-lg transition-colors">
+                        キャンセル
+                    </button>
+                    <button type="submit"
+                        class="bg-brand-600 hover:bg-brand-700 text-white font-medium py-2 px-6 rounded-lg transition-colors">
+                        保存
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 試験日程管理モーダル -->
+    <div id="examModal" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl mx-4 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    <i class="ph ph-calendar-plus text-brand-500"></i>
+                    試験日程の管理
+                </h2>
+                <button onclick="closeExamModal()" class="text-slate-400 hover:text-slate-600 text-xl transition-colors">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            
+            <form id="addExamForm" class="flex gap-2 mb-6">
+                <input type="text" id="newExamName" placeholder="試験名 (例: 地方上級)" required 
+                    class="flex-grow w-1/2 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none">
+                <input type="date" id="newExamDate" required 
+                    class="w-auto px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none">
+                <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg transition-colors font-medium whitespace-nowrap">
+                    追加
+                </button>
+            </form>
+
+            <div class="overflow-y-auto pr-1 space-y-2 flex-grow" id="examModalList">
+                <!-- JavaScriptで動的に追加されます -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === 状態管理 (In-Memory) ===
+        // 初期のダミーデータを用意して見栄えを良くする
+        const today = new Date().toISOString().split('T')[0];
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        
+        let records = [
+            { id: 1, date: today, subject: '数的処理', duration: 120, memo: '判断推理の過去問演習' },
+            { id: 2, date: today, subject: '憲法', duration: 45, memo: '基本的人権の判例暗記' },
+            { id: 3, date: yesterday, subject: 'ミクロ経済学', duration: 90, memo: '消費者行動の理論' },
+            { id: 4, date: yesterday, subject: '民法', duration: 60, memo: '総則・意思表示の復習' }
+        ];
+
+        let goals = {
+            daily: 4,
+            weekly: 25,
+            monthly: 100,
+            yearly: 1000
+        };
+
+        // 試験日程のダミーデータ（少し先の日付を設定）
+        let exams = [
+            { id: 1, name: '国家公務員一般職', date: new Date(Date.now() + 86400000 * 45).toISOString().split('T')[0] },
+            { id: 2, name: '地方上級（A日程）', date: new Date(Date.now() + 86400000 * 60).toISOString().split('T')[0] }
+        ];
+
+        let myChart = null;
+
+        // === 初期化 ===
+        document.addEventListener('DOMContentLoaded', () => {
+            // 日付入力欄の初期値を今日に設定
+            document.getElementById('date').value = today;
+            
+            // イベントリスナーの設定
+            document.getElementById('recordForm').addEventListener('submit', handleAddRecord);
+            document.getElementById('goalForm').addEventListener('submit', handleSaveGoals);
+            document.getElementById('addExamForm').addEventListener('submit', handleAddExam);
+            
+            // 初回描画
+            updateUI();
+        });
+
+        // === レコード追加処理 ===
+        function handleAddRecord(e) {
+            e.preventDefault();
+            
+            const date = document.getElementById('date').value;
+            const subject = document.getElementById('subject').value;
+            const duration = parseInt(document.getElementById('duration').value, 10);
+            const memo = document.getElementById('memo').value;
+
+            const newRecord = {
+                id: Date.now(), // 簡易的な一意のID
+                date,
+                subject,
+                duration,
+                memo
+            };
+
+            // 配列の先頭に追加（新しい順）
+            records.unshift(newRecord);
+            
+            // フォームをリセット（日付はそのまま、科目なども適宜リセット）
+            document.getElementById('duration').value = '';
+            document.getElementById('memo').value = '';
+
+            // UIを更新
+            updateUI();
+        }
+
+        // === レコード削除処理 ===
+        function deleteRecord(id) {
+            records = records.filter(record => record.id !== id);
+            updateUI();
+        }
+
+        // === UI更新の統合関数 ===
+        function updateUI() {
+            // 記録を日付の降順でソート
+            records.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            renderSummary();
+            renderGoals();
+            renderExams();
+            renderTable();
+            renderChart();
+        }
+
+        // === サマリーの描画 ===
+        function renderSummary() {
+            // 総学習時間の計算
+            const totalMinutes = records.reduce((sum, record) => sum + record.duration, 0);
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            document.getElementById('totalTimeDisplay').textContent = `${hours}時間 ${minutes}分`;
+
+            // 今月の学習日数の計算
+            const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+            const uniqueDaysThisMonth = new Set(
+                records
+                    .filter(r => r.date.startsWith(currentMonth))
+                    .map(r => r.date)
+            );
+            document.getElementById('totalDaysDisplay').textContent = `${uniqueDaysThisMonth.size}日`;
+        }
+
+        // === 目標・進捗関連 ===
+        function openGoalModal() {
+            document.getElementById('goalDaily').value = goals.daily;
+            document.getElementById('goalWeekly').value = goals.weekly;
+            document.getElementById('goalMonthly').value = goals.monthly;
+            document.getElementById('goalYearly').value = goals.yearly;
+            document.getElementById('goalModal').classList.remove('hidden');
+        }
+
+        function closeGoalModal() {
+            document.getElementById('goalModal').classList.add('hidden');
+        }
+
+        function handleSaveGoals(e) {
+            e.preventDefault();
+            goals.daily = parseFloat(document.getElementById('goalDaily').value) || 0;
+            goals.weekly = parseFloat(document.getElementById('goalWeekly').value) || 0;
+            goals.monthly = parseFloat(document.getElementById('goalMonthly').value) || 0;
+            goals.yearly = parseFloat(document.getElementById('goalYearly').value) || 0;
+            closeGoalModal();
+            updateUI();
+        }
+
+        function getStartOfWeek(dateStr) {
+            const date = new Date(dateStr);
+            const day = date.getDay();
+            const diff = date.getDate() - day + (day === 0 ? -6 : 1); // 月曜始まり
+            return new Date(date.setDate(diff)).setHours(0, 0, 0, 0);
+        }
+
+        function calculateProgress() {
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+            const currentYear = todayStr.substring(0, 4);
+            const currentMonth = todayStr.substring(0, 7);
+            const currentWeekStart = getStartOfWeek(now);
+            
+            let stats = { daily: 0, weekly: 0, monthly: 0, yearly: 0 };
+
+            records.forEach(r => {
+                const rDateStr = r.date;
+                
+                if (rDateStr.startsWith(currentYear)) stats.yearly += r.duration;
+                if (rDateStr.startsWith(currentMonth)) stats.monthly += r.duration;
+                if (getStartOfWeek(rDateStr) === currentWeekStart) stats.weekly += r.duration;
+                if (rDateStr === todayStr) stats.daily += r.duration;
+            });
+
+            return stats;
+        }
+
+        function renderGoals() {
+            const stats = calculateProgress();
+            
+            updateProgressBar('dailyProgress', stats.daily, goals.daily * 60, '日');
+            updateProgressBar('weeklyProgress', stats.weekly, goals.weekly * 60, '週');
+            updateProgressBar('monthlyProgress', stats.monthly, goals.monthly * 60, '月');
+            updateProgressBar('yearlyProgress', stats.yearly, goals.yearly * 60, '年');
+        }
+
+        function updateProgressBar(elementId, currentMinutes, targetMinutes, label) {
+            const currentHours = (currentMinutes / 60).toFixed(1).replace('.0', '');
+            const targetHours = (targetMinutes / 60).toFixed(1).replace('.0', '');
+            let percentage = 0;
+            if (targetMinutes > 0) {
+                percentage = Math.min(100, Math.round((currentMinutes / targetMinutes) * 100));
+            }
+
+            // 100%達成したら色を緑にする
+            const barColor = percentage >= 100 ? 'bg-green-500' : 'bg-brand-500';
+
+            const container = document.getElementById(elementId);
+            if (!container) return;
+            
+            container.innerHTML = `
+                <div class="flex justify-between text-sm mb-1.5">
+                    <span class="text-slate-600 font-medium">${label}の目標</span>
+                    <span class="text-slate-900 font-bold">${currentHours}h <span class="text-slate-400 font-normal text-xs">/ ${targetHours}h</span> <span class="text-brand-600 ml-1 text-xs">(${percentage}%)</span></span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                    <div class="${barColor} h-2.5 rounded-full transition-all duration-700 ease-out" style="width: ${percentage}%"></div>
+                </div>
+            `;
+        }
+
+        // === 試験日程関連 ===
+        function renderExams() {
+            const container = document.getElementById('examListDisplay');
+            container.innerHTML = '';
+
+            if (exams.length === 0) {
+                container.innerHTML = '<p class="text-slate-500 text-sm col-span-2 py-2">試験日程が登録されていません。設定から追加してください。</p>';
+                return;
+            }
+
+            // 日付の近い順にソート
+            const sortedExams = [...exams].sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            // 今日の日付（時刻は0時0分0秒にリセット）
+            const todayDate = new Date();
+            todayDate.setHours(0, 0, 0, 0);
+
+            sortedExams.forEach(exam => {
+                const examDate = new Date(exam.date);
+                examDate.setHours(0, 0, 0, 0);
+                
+                // 差分をミリ秒から日数に変換
+                const diffTime = examDate - todayDate;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                let daysText = '';
+                let colorClass = '';
+
+                if (diffDays > 0) {
+                    daysText = `あと<span class="text-2xl font-bold mx-1.5">${diffDays}</span>日`;
+                    // 30日以内なら赤色っぽく強調、それ以外は青色
+                    colorClass = diffDays <= 30 ? 'text-rose-700 bg-rose-50 border-rose-200' : 'text-brand-800 bg-brand-50 border-brand-100';
+                } else if (diffDays === 0) {
+                    daysText = `<span class="text-xl font-bold mx-1">本日試験！</span>`;
+                    colorClass = 'text-rose-600 bg-rose-100 border-rose-300 animate-pulse';
+                } else {
+                    daysText = `終了しました`;
+                    colorClass = 'text-slate-500 bg-slate-50 border-slate-200';
+                }
+
+                container.innerHTML += `
+                    <div class="border rounded-xl p-4 ${colorClass} transition-all">
+                        <div class="text-xs font-bold mb-1 opacity-70">${exam.name}</div>
+                        <div class="flex items-end justify-between">
+                            <div class="leading-none tracking-tight">${daysText}</div>
+                            <div class="text-xs font-medium opacity-60">${exam.date.replace(/-/g, '/')}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function openExamModal() {
+            document.getElementById('examModal').classList.remove('hidden');
+            renderExamModalList();
+        }
+
+        function closeExamModal() {
+            document.getElementById('examModal').classList.add('hidden');
+        }
+
+        function handleAddExam(e) {
+            e.preventDefault();
+            const name = document.getElementById('newExamName').value;
+            const date = document.getElementById('newExamDate').value;
+            
+            exams.push({ id: Date.now(), name, date });
+            
+            // フォームのリセット
+            document.getElementById('newExamName').value = '';
+            document.getElementById('newExamDate').value = '';
+            
+            renderExamModalList();
+            updateUI();
+        }
+
+        function deleteExam(id) {
+            exams = exams.filter(e => e.id !== id);
+            renderExamModalList();
+            updateUI();
+        }
+
+        function renderExamModalList() {
+            const list = document.getElementById('examModalList');
+            list.innerHTML = '';
+            
+            if (exams.length === 0) {
+                list.innerHTML = '<p class="text-slate-500 text-sm py-4 text-center">登録された試験はありません</p>';
+                return;
+            }
+
+            const sortedExams = [...exams].sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            sortedExams.forEach(exam => {
+                list.innerHTML += `
+                    <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-200 hover:bg-slate-100 transition-colors">
+                        <div>
+                            <div class="font-bold text-sm text-slate-800">${exam.name}</div>
+                            <div class="text-xs font-medium text-slate-500 flex items-center gap-1 mt-0.5">
+                                <i class="ph ph-calendar-blank"></i>
+                                ${exam.date.replace(/-/g, '/')}
+                            </div>
+                        </div>
+                        <button type="button" onclick="deleteExam(${exam.id})" class="text-slate-400 hover:text-red-500 p-2 rounded-md hover:bg-red-50 transition-colors" title="削除">
+                            <i class="ph ph-trash text-lg"></i>
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        // === テーブルの描画 ===
+        function renderTable() {
+            const tbody = document.getElementById('recordList');
+            const emptyState = document.getElementById('emptyState');
+            
+            tbody.innerHTML = '';
+            
+            if (records.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+
+            records.forEach(record => {
+                // 時間のフォーマット (例: 90 -> 1h 30m)
+                const h = Math.floor(record.duration / 60);
+                const m = record.duration % 60;
+                const timeStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
+
+                // 科目ごとの色設定（公務員試験向け）
+                const colors = {
+                    '数的処理': 'bg-blue-100 text-blue-700',
+                    '文章理解': 'bg-indigo-100 text-indigo-700',
+                    '憲法': 'bg-red-100 text-red-700',
+                    '民法': 'bg-orange-100 text-orange-700',
+                    '行政法': 'bg-yellow-100 text-yellow-800',
+                    'ミクロ経済学': 'bg-green-100 text-green-700',
+                    'マクロ経済学': 'bg-teal-100 text-teal-700',
+                    'その他': 'bg-slate-100 text-slate-700'
+                };
+                const badgeClass = colors[record.subject] || colors['その他'];
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition-colors';
+                tr.innerHTML = `
+                    <td class="py-3 px-6 whitespace-nowrap text-sm text-slate-600">${record.date}</td>
+                    <td class="py-3 px-6 whitespace-nowrap">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-medium ${badgeClass}">
+                            ${record.subject}
+                        </span>
+                    </td>
+                    <td class="py-3 px-6 whitespace-nowrap text-sm font-medium text-slate-700">${timeStr}</td>
+                    <td class="py-3 px-6 text-sm text-slate-600 max-w-xs truncate" title="${record.memo}">${record.memo || '-'}</td>
+                    <td class="py-3 px-6 whitespace-nowrap text-center">
+                        <button onclick="deleteRecord(${record.id})" class="text-slate-400 hover:text-red-500 transition-colors p-1 rounded hover:bg-red-50" title="削除">
+                            <i class="ph ph-trash text-lg"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // === グラフの描画 (Chart.js) ===
+        function renderChart() {
+            const ctx = document.getElementById('subjectChart').getContext('2d');
+            
+            if (records.length === 0) {
+                if (myChart) myChart.destroy();
+                return;
+            }
+
+            // 科目ごとの合計時間を計算
+            const subjectTotals = {};
+            records.forEach(r => {
+                subjectTotals[r.subject] = (subjectTotals[r.subject] || 0) + r.duration;
+            });
+
+            const labels = Object.keys(subjectTotals);
+            const data = Object.values(subjectTotals);
+            
+            // チャート用のカラーパレット
+            const backgroundColors = [
+                '#0ea5e9', '#ef4444', '#22c55e', '#a855f7', '#eab308', '#64748b', '#f97316'
+            ];
+
+            if (myChart) {
+                myChart.destroy(); // 既存のグラフを破棄して再描画
+            }
+
+            myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: backgroundColors.slice(0, labels.length),
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                font: {
+                                    family: "'Noto Sans JP', sans-serif"
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    const val = context.raw;
+                                    const h = Math.floor(val / 60);
+                                    const m = val % 60;
+                                    if (context.parsed !== null) {
+                                        label += h > 0 ? `${h}時間${m}分` : `${m}分`;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+    </script>
+</body>
+</html>
