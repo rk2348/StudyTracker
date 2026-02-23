@@ -53,7 +53,13 @@
 </head>
 <body class="text-slate-800 antialiased min-h-screen">
 
-    <div id="login-container" class="min-h-screen flex items-center justify-center p-4">
+    <div id="full-page-loader" class="fixed inset-0 bg-slate-50 z-[100] flex flex-col items-center justify-center transition-opacity duration-300">
+        <i class="ph ph-spinner-gap animate-spin text-brand-600 text-5xl mb-4"></i>
+        <h2 class="text-xl font-bold text-slate-800 tracking-tight">StudyTracker</h2>
+        <p class="text-slate-500 mt-2 text-sm font-medium animate-pulse">データを読み込んでいます...</p>
+    </div>
+
+    <div id="login-container" class="hidden min-h-screen flex items-center justify-center p-4 relative z-10">
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 w-full max-w-md">
             <div class="text-center mb-8">
                 <i class="ph-fill ph-book-open-text text-brand-600 text-5xl mb-2"></i>
@@ -73,11 +79,11 @@
                         class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-shadow">
                 </div>
                 
-                <div id="auth-error" class="hidden text-rose-500 text-sm font-medium"></div>
+                <div id="auth-error" class="hidden text-rose-500 text-sm font-medium p-3 bg-rose-50 rounded-lg border border-rose-100"></div>
 
                 <button type="submit" id="auth-submit-btn"
-                    class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors mt-2">
-                    ログイン
+                    class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors mt-2 flex justify-center items-center gap-2">
+                    <span>ログイン</span>
                 </button>
             </form>
 
@@ -89,6 +95,7 @@
             </div>
         </div>
     </div>
+
     <div id="app-container" class="hidden flex-col min-h-screen">
         <nav class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-10">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -190,10 +197,10 @@
                                     class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-shadow resize-none"></textarea>
                             </div>
                             
-                            <button type="submit"
+                            <button type="submit" id="record-submit-btn"
                                 class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors flex justify-center items-center gap-2 mt-2">
                                 <i class="ph ph-floppy-disk text-lg"></i>
-                                記録を保存
+                                <span>記録を保存</span>
                             </button>
                         </form>
                     </div>
@@ -344,10 +351,10 @@
                                         class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-shadow resize-none"></textarea>
                                 </div>
                                 
-                                <button type="submit"
+                                <button type="submit" id="mock-submit-btn"
                                     class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors flex justify-center items-center gap-2 mt-2">
                                     <i class="ph ph-floppy-disk text-lg"></i>
-                                    成績を保存
+                                    <span>成績を保存</span>
                                 </button>
                             </form>
                         </div>
@@ -397,6 +404,7 @@
             </div>
             </main>
     </div>
+    
     <div id="goalModal" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl mx-4">
             <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
@@ -431,9 +439,9 @@
                         class="px-4 py-2 text-slate-600 hover:bg-slate-100 font-medium rounded-lg transition-colors">
                         キャンセル
                     </button>
-                    <button type="submit"
-                        class="bg-brand-600 hover:bg-brand-700 text-white font-medium py-2 px-6 rounded-lg transition-colors">
-                        保存
+                    <button type="submit" id="goal-submit-btn"
+                        class="bg-brand-600 hover:bg-brand-700 text-white font-medium py-2 px-6 rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <span>保存</span>
                     </button>
                 </div>
             </form>
@@ -457,8 +465,8 @@
                     class="flex-grow w-1/2 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none">
                 <input type="date" id="newExamDate" required 
                     class="w-auto bg-white appearance-none px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none">
-                <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg transition-colors font-medium whitespace-nowrap">
-                    追加
+                <button type="submit" id="exam-submit-btn" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg transition-colors font-medium whitespace-nowrap flex items-center justify-center">
+                    <span>追加</span>
                 </button>
             </form>
 
@@ -468,15 +476,11 @@
     </div>
 
     <script type="module">
-        // Firebase コア
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-        // Firestore (データベース) - where を追加インポート
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        // Authentication (認証) - 必要な関数をインポート
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAByhWq2P8kvgG0nX6vZPfHphyF1M81Ze4",
             authDomain: "studytracker-810d7.firebaseapp.com",
@@ -487,17 +491,16 @@
             measurementId: "G-S5M5MH306R"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const db = getFirestore(app);
-        const auth = getAuth(app); // 認証機能を初期化
+        const auth = getAuth(app); 
 
         // === 状態管理 ===
         const today = new Date().toISOString().split('T')[0];
         
-        let currentUser = null; // 現在ログインしているユーザーを保持
-        let isLoginMode = true; // ログイン画面か新規登録画面かの判定フラグ
+        let currentUser = null; 
+        let isLoginMode = true; 
 
         let records = [];
         let goals = {
@@ -519,6 +522,23 @@
         let timerSeconds = 0;
         let isTimerRunning = false;
 
+        // UI切り替え用関数
+        function setButtonLoading(buttonId, isLoading, defaultText) {
+            const btn = document.getElementById(buttonId);
+            if (!btn) return;
+            if (isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="ph ph-spinner-gap animate-spin text-lg"></i> <span>処理中...</span>`;
+                btn.classList.add('opacity-80', 'cursor-not-allowed');
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = btn.id === 'record-submit-btn' || btn.id === 'mock-submit-btn' 
+                    ? `<i class="ph ph-floppy-disk text-lg"></i> <span>${defaultText}</span>` 
+                    : `<span>${defaultText}</span>`;
+                btn.classList.remove('opacity-80', 'cursor-not-allowed');
+            }
+        }
+
         // === 認証・ログイン処理 ===
         document.getElementById('authForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -527,138 +547,152 @@
             const errorDiv = document.getElementById('auth-error');
             errorDiv.classList.add('hidden');
 
+            setButtonLoading('auth-submit-btn', true, '');
+
             try {
                 if (isLoginMode) {
-                    // ログイン
                     await signInWithEmailAndPassword(auth, email, password);
                 } else {
-                    // 新規登録
                     await createUserWithEmailAndPassword(auth, email, password);
                 }
+                // 成功時は onAuthStateChanged でローディングを解除するのでここでは何もしない
             } catch (error) {
                 console.error("認証エラー:", error);
                 errorDiv.classList.remove('hidden');
+                
                 if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                    errorDiv.textContent = "メールアドレスまたはパスワードが間違っています。";
+                    errorDiv.innerHTML = "<i class='ph-fill ph-warning-circle mr-1'></i>メールアドレスまたはパスワードが間違っています。";
                 } else if (error.code === 'auth/email-already-in-use') {
-                    errorDiv.textContent = "このメールアドレスは既に登録されています。";
+                    errorDiv.innerHTML = "<i class='ph-fill ph-warning-circle mr-1'></i>このメールアドレスは既に登録されています。";
                 } else if (error.code === 'auth/weak-password') {
-                    errorDiv.textContent = "パスワードは6文字以上で設定してください。";
+                    errorDiv.innerHTML = "<i class='ph-fill ph-warning-circle mr-1'></i>パスワードは6文字以上で設定してください。";
                 } else {
-                    errorDiv.textContent = "エラーが発生しました。もう一度お試しください。";
+                    errorDiv.innerHTML = "<i class='ph-fill ph-warning-circle mr-1'></i>エラーが発生しました。もう一度お試しください。";
                 }
+                setButtonLoading('auth-submit-btn', false, isLoginMode ? 'ログイン' : '新規登録');
             }
         });
 
-        // ログイン/新規登録の切り替え
         window.toggleAuthMode = function() {
             isLoginMode = !isLoginMode;
-            const submitBtn = document.getElementById('auth-submit-btn');
             const switchBtn = document.getElementById('auth-switch-btn');
             const switchText = document.getElementById('auth-switch-text');
             const errorDiv = document.getElementById('auth-error');
             
             errorDiv.classList.add('hidden');
+            setButtonLoading('auth-submit-btn', false, isLoginMode ? 'ログイン' : '新規登録');
 
             if (isLoginMode) {
-                submitBtn.textContent = 'ログイン';
                 switchText.textContent = 'アカウントをお持ちでない場合は';
                 switchBtn.textContent = '新規登録はこちら';
             } else {
-                submitBtn.textContent = '新規登録';
                 switchText.textContent = 'すでにアカウントをお持ちの場合は';
                 switchBtn.textContent = 'ログインはこちら';
             }
         }
 
-        // ログアウト処理
         window.handleLogout = async function() {
             try {
+                // ログアウト時もローディングを表示
+                document.getElementById('full-page-loader').classList.remove('hidden');
                 await signOut(auth);
             } catch (error) {
                 console.error("ログアウトエラー:", error);
                 alert("ログアウトに失敗しました。");
+                document.getElementById('full-page-loader').classList.add('hidden');
             }
         }
 
-        // ログイン状態の監視 (アプリのメイン処理)
+        // === ログイン状態の監視 (アプリのメイン処理) ===
         onAuthStateChanged(auth, async (user) => {
+            const loader = document.getElementById('full-page-loader');
+            const loginContainer = document.getElementById('login-container');
+            const appContainer = document.getElementById('app-container');
+
             if (user) {
-                // ログインしている場合
                 currentUser = user;
-                document.getElementById('login-container').classList.add('hidden');
-                document.getElementById('app-container').classList.remove('hidden');
-                document.getElementById('app-container').classList.add('flex');
                 
-                // 日付入力欄の初期値を今日に設定
+                // ログイン成功後、画面を切り替える前にスピナーを出し続ける
+                loader.classList.remove('hidden');
+                
                 document.getElementById('date').value = today;
                 document.getElementById('mockDate').value = today;
                 
-                // イベントリスナーの設定（重複登録を防ぐためここで一度だけ設定）
                 setupEventListeners();
 
-                // Firestoreからそのユーザー自身のデータだけを読み込む
+                // データの読み込み完了を待つ
                 await loadData();
-            } else {
-                // ログアウトしている場合
-                currentUser = null;
-                document.getElementById('login-container').classList.remove('hidden');
-                document.getElementById('app-container').classList.add('hidden');
-                document.getElementById('app-container').classList.remove('flex');
                 
-                // パスワード入力欄などをクリア
+                // 読み込みが全て終わってから画面を切り替える
+                loginContainer.classList.add('hidden');
+                appContainer.classList.remove('hidden');
+                appContainer.classList.add('flex');
+                
+                // ローディング画面をフェードアウト
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    // ボタンの状態をリセット
+                    setButtonLoading('auth-submit-btn', false, 'ログイン');
+                }, 300);
+
+            } else {
+                currentUser = null;
+                // 未ログイン状態の画面構築
+                appContainer.classList.add('hidden');
+                appContainer.classList.remove('flex');
+                loginContainer.classList.remove('hidden');
+                
                 document.getElementById('password').value = '';
+                
+                // ローディング画面をフェードアウト
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    setButtonLoading('auth-submit-btn', false, isLoginMode ? 'ログイン' : '新規登録');
+                }, 300);
             }
         });
 
         function setupEventListeners() {
-            // すでにリスナーが設定されている場合はスルーされるように上書き設定
             document.getElementById('recordForm').onsubmit = handleAddRecord;
             document.getElementById('goalForm').onsubmit = handleSaveGoals;
             document.getElementById('addExamForm').onsubmit = handleAddExam;
             document.getElementById('mockExamForm').onsubmit = handleAddMockExam;
         }
 
-        // === Firestoreからデータを読み込む関数 (ユーザー絞り込み付き) ===
+        // === Firestoreからデータを読み込む関数 ===
         async function loadData() {
             if (!currentUser) return;
 
             try {
-                // 1. 学習記録の読み込み (自分自身の記録だけを取得、※複合インデックスエラーを避けるため取得後にJSでソート)
                 const recordsQuery = query(collection(db, "records"), where("userId", "==", currentUser.uid));
                 const recordsSnapshot = await getDocs(recordsQuery);
                 records = recordsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                // 2. 目標設定の読み込み (ドキュメントIDをユーザーIDにして管理)
                 const goalDocRef = doc(db, "settings", currentUser.uid);
                 const goalDocSnap = await getDoc(goalDocRef);
                 if (goalDocSnap.exists()) {
                     goals = goalDocSnap.data();
                 }
 
-                // 3. 試験日程の読み込み
                 const examsQuery = query(collection(db, "exams"), where("userId", "==", currentUser.uid));
                 const examsSnapshot = await getDocs(examsQuery);
                 exams = examsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                // 4. 模試の成績の読み込み
                 const mockQuery = query(collection(db, "mockRecords"), where("userId", "==", currentUser.uid));
                 const mockSnapshot = await getDocs(mockQuery);
                 mockRecords = mockSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                // UIの初回描画
                 updateUI();
                 updateMockUI();
             } catch (error) {
                 console.error("データの読み込み中にエラーが発生しました:", error);
-                alert("データの読み込みに失敗しました。");
+                alert("データの読み込みに失敗しました。再読み込みしてください。");
             }
         }
 
-        // === ビューの切り替え ===
+        // ビューの切り替え
         window.switchView = function(viewName) {
             currentView = viewName;
-            
             const dashboardView = document.getElementById('dashboardView');
             const mockExamView = document.getElementById('mockExamView');
             const tabDashboard = document.getElementById('tab-dashboard');
@@ -667,19 +701,17 @@
             if (viewName === 'dashboard') {
                 dashboardView.classList.remove('hidden');
                 mockExamView.classList.add('hidden');
-                
                 tabDashboard.className = 'px-3 py-2 text-sm font-medium rounded-md bg-brand-50 text-brand-700 transition-colors';
                 tabMockExams.className = 'px-3 py-2 text-sm font-medium rounded-md text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors';
             } else if (viewName === 'mock-exams') {
                 dashboardView.classList.add('hidden');
                 mockExamView.classList.remove('hidden');
-                
                 tabMockExams.className = 'px-3 py-2 text-sm font-medium rounded-md bg-brand-50 text-brand-700 transition-colors';
                 tabDashboard.className = 'px-3 py-2 text-sm font-medium rounded-md text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors';
             }
         }
 
-        // === 入力モード切り替えとタイマー処理 ===
+        // 入力モードとタイマー処理 (変更なし)
         window.setInputMode = function(mode) {
             inputMode = mode;
             const btnManual = document.getElementById('modeBtnManual');
@@ -717,18 +749,15 @@
             document.getElementById('timerWarning').classList.add('hidden');
 
             if (isTimerRunning) {
-                // 休憩（一時停止）
                 clearInterval(timerInterval);
                 isTimerRunning = false;
                 startBtn.classList.remove('hidden');
                 pauseBtn.classList.add('hidden');
                 startBtn.innerHTML = '<i class="ph-fill ph-play"></i> 再開';
             } else {
-                // スタート・再開
                 isTimerRunning = true;
                 startBtn.classList.add('hidden');
                 pauseBtn.classList.remove('hidden');
-                
                 timerInterval = setInterval(() => {
                     timerSeconds++;
                     updateTimerDisplay();
@@ -750,7 +779,7 @@
             document.getElementById('timerWarning').classList.add('hidden');
         }
 
-        // === レコード追加処理 (Firebase対応) ===
+        // レコード追加処理
         async function handleAddRecord(e) {
             e.preventDefault();
             
@@ -761,19 +790,17 @@
             if (inputMode === 'manual') {
                 duration = parseInt(document.getElementById('duration').value, 10);
             } else {
-                // タイマーモードの場合
                 if (timerSeconds === 0) {
                     document.getElementById('timerWarning').classList.remove('hidden');
                     return;
                 }
-                // タイマーの秒数を分に換算（四捨五入、ただし最低1分として記録）
                 duration = Math.max(1, Math.round(timerSeconds / 60));
             }
 
             const memo = document.getElementById('memo').value;
 
             const recordData = {
-                userId: currentUser.uid, // ★追加：ユーザーIDを紐づけ
+                userId: currentUser.uid, 
                 date,
                 subject,
                 duration,
@@ -781,31 +808,30 @@
                 createdAt: new Date().toISOString()
             };
 
+            setButtonLoading('record-submit-btn', true, '記録を保存');
+
             try {
-                // Firestoreへ追加
                 const docRef = await addDoc(collection(db, "records"), recordData);
-                
-                // ローカルの配列に追加（新しい順）
                 records.unshift({ id: docRef.id, ...recordData });
                 
-                // フォームをリセット
                 if (inputMode === 'manual') {
                     document.getElementById('duration').value = '';
                 } else {
-                    window.resetTimer(); // 保存後にタイマーをリセット
+                    window.resetTimer();
                 }
                 document.getElementById('memo').value = '';
 
-                // UIを更新
                 updateUI();
             } catch (error) {
                 console.error("記録の保存中にエラーが発生しました: ", error);
                 alert("記録の保存に失敗しました。");
+            } finally {
+                setButtonLoading('record-submit-btn', false, '記録を保存');
             }
         }
 
-        // === レコード削除処理 (Firebase対応) ===
         window.deleteRecord = async function(id) {
+            if(!confirm("この記録を削除してもよろしいですか？")) return;
             try {
                 await deleteDoc(doc(db, "records", id));
                 records = records.filter(record => record.id !== id);
@@ -816,11 +842,8 @@
             }
         }
 
-        // === UI更新の統合関数 ===
         function updateUI() {
-            // 記録を日付の降順でソート
             records.sort((a, b) => new Date(b.date) - new Date(a.date));
-            
             renderSummary();
             renderGoals();
             renderExams();
@@ -828,7 +851,7 @@
             renderChart();
         }
 
-        // === 模試関連の処理 (Firebase対応) ===
+        // 模試関連の処理
         async function handleAddMockExam(e) {
             e.preventDefault();
             
@@ -839,7 +862,7 @@
             const memo = document.getElementById('mockMemo').value;
 
             const mockData = {
-                userId: currentUser.uid, // ★追加：ユーザーIDを紐づけ
+                userId: currentUser.uid, 
                 date,
                 name,
                 score,
@@ -848,12 +871,12 @@
                 createdAt: new Date().toISOString()
             };
 
+            setButtonLoading('mock-submit-btn', true, '成績を保存');
+
             try {
                 const docRef = await addDoc(collection(db, "mockRecords"), mockData);
-                
                 mockRecords.push({ id: docRef.id, ...mockData });
 
-                // フォームリセット
                 document.getElementById('mockName').value = '';
                 document.getElementById('mockScore').value = '';
                 document.getElementById('mockMaxScore').value = '';
@@ -863,10 +886,13 @@
             } catch (error) {
                 console.error("模試の保存中にエラーが発生しました: ", error);
                 alert("模試の保存に失敗しました。");
+            } finally {
+                setButtonLoading('mock-submit-btn', false, '成績を保存');
             }
         }
 
         window.deleteMockExam = async function(id) {
+            if(!confirm("この模試の記録を削除してもよろしいですか？")) return;
             try {
                 await deleteDoc(doc(db, "mockRecords", id));
                 mockRecords = mockRecords.filter(record => record.id !== id);
@@ -878,33 +904,27 @@
         }
 
         function updateMockUI() {
-            // 日付の古い順にソート（グラフ描画用）
             mockRecords.sort((a, b) => new Date(a.date) - new Date(b.date));
-            
             renderMockTable();
             renderMockChart();
         }
 
+        // 他の描画関数（省略せずそのまま）
         function renderMockTable() {
             const tbody = document.getElementById('mockList');
             const emptyState = document.getElementById('mockEmptyState');
-            
             tbody.innerHTML = '';
             
             if (mockRecords.length === 0) {
                 emptyState.classList.remove('hidden');
                 return;
             }
-            
             emptyState.classList.add('hidden');
 
-            // テーブルは新しい順に表示するため、反転した配列を使用
             const sortedRecords = [...mockRecords].sort((a, b) => new Date(b.date) - new Date(a.date));
 
             sortedRecords.forEach(record => {
                 const percentage = Math.round((record.score / record.maxScore) * 100);
-                
-                // 割合によって色を変える
                 let colorClass = 'text-slate-600';
                 if (percentage >= 70) colorClass = 'text-green-600 font-bold';
                 else if (percentage >= 50) colorClass = 'text-brand-600 font-bold';
@@ -954,7 +974,7 @@
                     datasets: [{
                         label: '得点率 (%)',
                         data: dataPercentages,
-                        borderColor: '#0ea5e9', // brand-500
+                        borderColor: '#0ea5e9',
                         backgroundColor: 'rgba(14, 165, 233, 0.1)',
                         borderWidth: 3,
                         pointBackgroundColor: '#fff',
@@ -963,7 +983,7 @@
                         pointRadius: 5,
                         pointHoverRadius: 7,
                         fill: true,
-                        tension: 0.3 // 少し滑らかな曲線
+                        tension: 0.3
                     }]
                 },
                 options: {
@@ -974,26 +994,16 @@
                             beginAtZero: true,
                             max: 100,
                             ticks: {
-                                callback: function(value) {
-                                    return value + '%';
-                                },
-                                font: {
-                                    family: "'Noto Sans JP', sans-serif"
-                                }
+                                callback: function(value) { return value + '%'; },
+                                font: { family: "'Noto Sans JP', sans-serif" }
                             }
                         },
                         x: {
-                            ticks: {
-                                font: {
-                                    family: "'Noto Sans JP', sans-serif"
-                                }
-                            }
+                            ticks: { font: { family: "'Noto Sans JP', sans-serif" } }
                         }
                     },
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
@@ -1008,25 +1018,19 @@
             });
         }
 
-        // === サマリーの描画 ===
         function renderSummary() {
-            // 総学習時間の計算
             const totalMinutes = records.reduce((sum, record) => sum + record.duration, 0);
             const hours = Math.floor(totalMinutes / 60);
             const minutes = totalMinutes % 60;
             document.getElementById('totalTimeDisplay').textContent = `${hours}時間 ${minutes}分`;
 
-            // 今月の学習日数の計算
-            const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+            const currentMonth = new Date().toISOString().slice(0, 7);
             const uniqueDaysThisMonth = new Set(
-                records
-                    .filter(r => r.date.startsWith(currentMonth))
-                    .map(r => r.date)
+                records.filter(r => r.date.startsWith(currentMonth)).map(r => r.date)
             );
             document.getElementById('totalDaysDisplay').textContent = `${uniqueDaysThisMonth.size}日`;
         }
 
-        // === 目標・進捗関連 (Firebase対応) ===
         window.openGoalModal = function() {
             document.getElementById('goalDaily').value = goals.daily;
             document.getElementById('goalWeekly').value = goals.weekly;
@@ -1048,8 +1052,9 @@
                 yearly: parseFloat(document.getElementById('goalYearly').value) || 0
             };
 
+            setButtonLoading('goal-submit-btn', true, '保存');
+
             try {
-                // ユーザーごとにドキュメントを分けて保存（ドキュメントIDを uid にする）
                 await setDoc(doc(db, "settings", currentUser.uid), newGoals);
                 goals = newGoals;
                 window.closeGoalModal();
@@ -1057,13 +1062,15 @@
             } catch (error) {
                 console.error("目標の保存中にエラーが発生しました: ", error);
                 alert("目標の保存に失敗しました。");
+            } finally {
+                setButtonLoading('goal-submit-btn', false, '保存');
             }
         }
 
         function getStartOfWeek(dateStr) {
             const date = new Date(dateStr);
             const day = date.getDay();
-            const diff = date.getDate() - day + (day === 0 ? -6 : 1); // 月曜始まり
+            const diff = date.getDate() - day + (day === 0 ? -6 : 1);
             return new Date(date.setDate(diff)).setHours(0, 0, 0, 0);
         }
 
@@ -1078,7 +1085,6 @@
 
             records.forEach(r => {
                 const rDateStr = r.date;
-                
                 if (rDateStr.startsWith(currentYear)) stats.yearly += r.duration;
                 if (rDateStr.startsWith(currentMonth)) stats.monthly += r.duration;
                 if (getStartOfWeek(rDateStr) === currentWeekStart) stats.weekly += r.duration;
@@ -1090,7 +1096,6 @@
 
         function renderGoals() {
             const stats = calculateProgress();
-            
             updateProgressBar('dailyProgress', stats.daily, goals.daily * 60, '日');
             updateProgressBar('weeklyProgress', stats.weekly, goals.weekly * 60, '週');
             updateProgressBar('monthlyProgress', stats.monthly, goals.monthly * 60, '月');
@@ -1105,9 +1110,7 @@
                 percentage = Math.min(100, Math.round((currentMinutes / targetMinutes) * 100));
             }
 
-            // 100%達成したら色を緑にする
             const barColor = percentage >= 100 ? 'bg-green-500' : 'bg-brand-500';
-
             const container = document.getElementById(elementId);
             if (!container) return;
             
@@ -1122,7 +1125,6 @@
             `;
         }
 
-        // === 試験日程関連 (Firebase対応) ===
         function renderExams() {
             const container = document.getElementById('examListDisplay');
             container.innerHTML = '';
@@ -1132,10 +1134,7 @@
                 return;
             }
 
-            // 日付の近い順にソート
             const sortedExams = [...exams].sort((a, b) => new Date(a.date) - new Date(b.date));
-            
-            // 今日の日付（時刻は0時0分0秒にリセット）
             const todayDate = new Date();
             todayDate.setHours(0, 0, 0, 0);
 
@@ -1143,7 +1142,6 @@
                 const examDate = new Date(exam.date);
                 examDate.setHours(0, 0, 0, 0);
                 
-                // 差分をミリ秒から日数に変換
                 const diffTime = examDate - todayDate;
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -1152,7 +1150,6 @@
 
                 if (diffDays > 0) {
                     daysText = `あと<span class="text-2xl font-bold mx-1.5">${diffDays}</span>日`;
-                    // 30日以内なら赤色っぽく強調、それ以外は青色
                     colorClass = diffDays <= 30 ? 'text-rose-700 bg-rose-50 border-rose-200' : 'text-brand-800 bg-brand-50 border-brand-100';
                 } else if (diffDays === 0) {
                     daysText = `<span class="text-xl font-bold mx-1">本日試験！</span>`;
@@ -1188,8 +1185,9 @@
             const name = document.getElementById('newExamName').value;
             const date = document.getElementById('newExamDate').value;
             
+            setButtonLoading('exam-submit-btn', true, '追加');
+
             try {
-                // ユーザーIDを紐づけて保存
                 const docRef = await addDoc(collection(db, "exams"), { 
                     userId: currentUser.uid, 
                     name, 
@@ -1197,7 +1195,6 @@
                 });
                 exams.push({ id: docRef.id, name, date, userId: currentUser.uid });
                 
-                // フォームのリセット
                 document.getElementById('newExamName').value = '';
                 document.getElementById('newExamDate').value = '';
                 
@@ -1206,10 +1203,13 @@
             } catch (error) {
                 console.error("試験日程の追加中にエラーが発生しました: ", error);
                 alert("試験日程の追加に失敗しました。");
+            } finally {
+                setButtonLoading('exam-submit-btn', false, '追加');
             }
         }
 
         window.deleteExam = async function(id) {
+            if(!confirm("この試験日程を削除してもよろしいですか？")) return;
             try {
                 await deleteDoc(doc(db, "exams", id));
                 exams = exams.filter(e => e.id !== id);
@@ -1250,7 +1250,6 @@
             });
         }
 
-        // === テーブルの描画 ===
         function renderTable() {
             const tbody = document.getElementById('recordList');
             const emptyState = document.getElementById('emptyState');
@@ -1265,12 +1264,10 @@
             emptyState.classList.add('hidden');
 
             records.forEach(record => {
-                // 時間のフォーマット (例: 90 -> 1h 30m)
                 const h = Math.floor(record.duration / 60);
                 const m = record.duration % 60;
                 const timeStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
 
-                // 科目ごとの色設定（公務員試験向け）
                 const colors = {
                     '数的処理': 'bg-blue-100 text-blue-700',
                     '文章理解': 'bg-indigo-100 text-indigo-700',
@@ -1304,7 +1301,6 @@
             });
         }
 
-        // === グラフの描画 (Chart.js) ===
         function renderChart() {
             const ctx = document.getElementById('subjectChart').getContext('2d');
             
@@ -1313,7 +1309,6 @@
                 return;
             }
 
-            // 科目ごとの合計時間を計算
             const subjectTotals = {};
             records.forEach(r => {
                 subjectTotals[r.subject] = (subjectTotals[r.subject] || 0) + r.duration;
@@ -1322,13 +1317,12 @@
             const labels = Object.keys(subjectTotals);
             const data = Object.values(subjectTotals);
             
-            // チャート用のカラーパレット
             const backgroundColors = [
                 '#0ea5e9', '#ef4444', '#22c55e', '#a855f7', '#eab308', '#64748b', '#f97316'
             ];
 
             if (myChart) {
-                myChart.destroy(); // 既存のグラフを破棄して再描画
+                myChart.destroy(); 
             }
 
             myChart = new Chart(ctx, {
