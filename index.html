@@ -10,8 +10,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="StudyTracker">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <script>
         tailwind.config = {
@@ -161,17 +163,18 @@
                                     <select id="subject" required
                                         class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-shadow bg-white">
                                         <option value="" disabled selected>選択してください</option>
-                                        <option value="数的処理">数的処理</option>
-                                        <option value="文章理解">文章理解</option>
-                                        <option value="憲法">憲法</option>
-                                        <option value="民法">民法</option>
-                                        <option value="行政法">行政法</option>
-                                        <option value="ミクロ経済学">ミクロ経済学</option>
-                                        <option value="マクロ経済学">マクロ経済学</option>
+                                        <option value="数的処理">数的処理（判断・数的・資料・空間）</option>
+                                        <option value="文章理解">文章理解（現代文・英文）</option>
+                                        <option value="社会科学">社会科学（政治・経済・社会）</option>
+                                        <option value="人文科学">人文科学（日本史・世界史・地理など）</option>
+                                        <option value="自然科学">自然科学（数学・物理・化学など）</option>
+                                        <option value="国語試験">国語試験（漢字の読み書き）</option>
+                                        <option value="論文試験">論文試験</option>
+                                        <option value="面接対策">面接対策</option>
                                         <option value="その他">その他</option>
                                     </select>
                                 </div>
-                            
+                                
                             <div id="manualTimeInput">
                                 <label for="duration" class="block text-sm font-medium text-slate-700 mb-1">学習時間（分）</label>
                                 <input type="number" id="duration" min="1" required placeholder="例: 60"
@@ -1275,11 +1278,12 @@
                 const colors = {
                     '数的処理': 'bg-blue-100 text-blue-700',
                     '文章理解': 'bg-indigo-100 text-indigo-700',
-                    '憲法': 'bg-red-100 text-red-700',
-                    '民法': 'bg-orange-100 text-orange-700',
-                    '行政法': 'bg-yellow-100 text-yellow-800',
-                    'ミクロ経済学': 'bg-green-100 text-green-700',
-                    'マクロ経済学': 'bg-teal-100 text-teal-700',
+                    '社会科学': 'bg-green-100 text-green-700',
+                    '人文科学': 'bg-orange-100 text-orange-700',
+                    '自然科学': 'bg-teal-100 text-teal-700',
+                    '国語試験': 'bg-yellow-100 text-yellow-800',
+                    '論文試験': 'bg-purple-100 text-purple-700',
+                    '面接対策': 'bg-rose-100 text-rose-700',
                     'その他': 'bg-slate-100 text-slate-700'
                 };
                 const badgeClass = colors[record.subject] || colors['その他'];
